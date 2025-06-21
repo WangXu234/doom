@@ -103,17 +103,9 @@
         org-roam-ui-open-on-start t)) ; Emacs 启动时自动打开 Org-roam-UI (可选，可能会增加启动时间)
 
 
-;; 设置系统编码为utf-8
+
 (set-language-environment "UTF-8")
-(set-default-coding-systems 'utf-8)
-(set-buffer-file-coding-system 'utf-8-unix)
-(set-clipboard-coding-system 'utf-8-unix)
-(set-file-name-coding-system 'utf-8-unix)
-(set-keyboard-coding-system 'utf-8-unix)
-(set-next-selection-coding-system 'utf-8-unix)
-(set-selection-coding-system 'utf-8-unix)
-(set-terminal-coding-system 'utf-8-unix)
-(setq locale-coding-system 'utf-8)
-(prefer-coding-system 'utf-8)
-;; 设置consult-ripgrep搜索中文
-(add-to-list 'process-coding-system-alist '("rg" utf-8 . gbk))
+(prefer-coding-system 'gbk)
+(add-to-list 'process-coding-system-alist
+                        '("[rR][gG]" . (utf-8 . gbk-dos)))
+(setq-default buffer-file-coding-system 'utf-8-unix)
