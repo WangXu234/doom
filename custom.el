@@ -10,6 +10,7 @@
      "c:/Users/rocky/org/todo.org"))
  '(package-selected-packages '(org-modern org-roam org-roam-ui))
  '(warning-suppress-log-types '((emacs)))
+ '(warning-suppress-types '((yasnippet zombie) (defvaralias) (lexical-binding)))
  '(which-key-use-C-h-commands nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

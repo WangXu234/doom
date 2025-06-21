@@ -36,13 +36,12 @@
 
 
 
-;; --- 为 Doom Emacs 配置国内 ELPA 镜像源 ---
-;; 这段代码通过修改 Straight.el 的行为，使其使用国内镜像。
-
-(after! package
-  (setq package-archives '(("gnu" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-                           ("melpa" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
-                           ("nongnu" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/"))))
+;; ;; --- 为 Doom Emacs 配置国内 ELPA 镜像源 ---
+;; ;; 这段代码通过修改 Straight.el 的行为，使其使用国内镜像。
+;; (after! package
+;;   (setq package-archives '(("gnu" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+;;                            ("melpa" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
+;;                            ("nongnu" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/"))))
 
 
 
@@ -117,11 +116,6 @@
         org-roam-ui-update-on-save t ; 保存 Org 文件时，UI 自动更新
         org-roam-ui-open-on-start t)) ; Emacs 启动时自动打开 Org-roam-UI (可选，可能会增加启动时间)
 
-;; (可选) 启用全局补全，这样在任何 Org 文件中输入 [[ 都能触发 Org-roam 补全
-(setq org-roam-completion-everywhere t)
-
-
-
 ;; 建议将 org-roam-ui-mode 绑定到一个快捷键，方便启用
 ;; 例如，SPC n r g (Node Roam Graph)
 (map! :leader
@@ -129,22 +123,17 @@
       "n r g" #'org-roam-ui-mode) ; 这会启动一个本地 Web 服务器并打开浏览器
 
 
-;; 解决无法doom upgrade的问题
-
-(after! straight
-  ;; 强制 straight.el 使用 HTTPS 协议，以便代理配置生效
-  (setq straight-vc-git-default-protocol 'https
-        straight-vc-git-fetch-flags '("--progress" "--verbose")
-        straight-vc-git-clone-flags '("--progress" "--verbose"))
-
-  ;; 为 straight.el 内部调用的 Git 进程设置环境变量
-  ;; 这是最直接且通常最有效的方式，确保 Git 进程使用代理
-  (setenv "HTTPS_PROXY" "socks5://127.0.0.1:6080")
-  (setenv "HTTP_PROXY" "socks5://127.0.0.1:6080")
-  ;; 针对某些系统或旧版本，可能也需要 ALL_PROXY
-  (setenv "ALL_PROXY" "socks5://127.0.0.1:6080")
-
-  ;; 同时为 Emacs 自身可能发出的 HTTP/HTTPS 请求设置代理 (url 包)
-  ;; 虽然 doom upgrade 主要依赖 Git，但有些辅助性下载可能会用到
-  (setq url-proxy-type 'socks5
-        url-socks5-proxy "127.0.0.1:6080"))
+;; 设置系统编码为utf-8
+(set-language-environment "UTF-8")
+(set-default-coding-systems 'utf-8)
+(set-buffer-file-coding-system 'utf-8-unix)
+(set-clipboard-coding-system 'utf-8-unix)
+(set-file-name-coding-system 'utf-8-unix)
+(set-keyboard-coding-system 'utf-8-unix)
+(set-next-selection-coding-system 'utf-8-unix)
+(set-selection-coding-system 'utf-8-unix)
+(set-terminal-coding-system 'utf-8-unix)
+(setq locale-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
+;; 设置consult-ripgrep搜索中文
+(add-to-list 'process-coding-system-alist '("rg" utf-8 . gbk))

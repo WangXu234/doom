@@ -56,3 +56,9 @@
 ;; 如果 Org-roam-UI 运行时有问题，有时候需要解绑 org-roam 的版本，
 ;; 但通常 Doom Emacs 会处理好依赖关系。
 ;; (unpin! org-roam) ; 只有在 org-roam-ui 提示版本冲突时才尝试
+;;
+
+;; 安装org-download
+(package! org-download)
+
+
