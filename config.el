@@ -116,12 +116,6 @@
         org-roam-ui-update-on-save t ; 保存 Org 文件时，UI 自动更新
         org-roam-ui-open-on-start t)) ; Emacs 启动时自动打开 Org-roam-UI (可选，可能会增加启动时间)
 
-;; 建议将 org-roam-ui-mode 绑定到一个快捷键，方便启用
-;; 例如，SPC n r g (Node Roam Graph)
-(map! :leader
-      :desc "Org-roam UI open graph"
-      "n r g" #'org-roam-ui-mode) ; 这会启动一个本地 Web 服务器并打开浏览器
-
 
 ;; 设置系统编码为utf-8
 (set-language-environment "UTF-8")
