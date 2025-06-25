@@ -22,35 +22,12 @@
 
 
 
-;; ;; --- 为 Doom Emacs 配置国内 ELPA 镜像源 ---
-;; ;; 这段代码通过修改 Straight.el 的行为，使其使用国内镜像。
-;; (after! package
-;;   (setq package-archives '(("gnu" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-;;                            ("melpa" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")
-;;                            ("nongnu" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/"))))
-
-
-
-;; 保持主字体使用系统默认或 Emacs 默认策略
-;; 如果你没有明确设置 doom-font，Emacs 会自动选择一个默认字体。
-;; 如果你之前设置了 doom-font，可以将其注释掉或删除。
-;; 为中文字符集指定字体
-(defun my-cjk-font ()
-  (dolist (charset '(kana han cjk-misc symbol bopomofo))
-    ;; 推荐使用 Sarasa Mono SC 或其他你喜欢的等宽中文字体
-    (set-fontset-font t charset (font-spec :family "Sarasa Mono SC"))))
-
-;; 将此函数添加到 Emacs 启动后设置字体的钩子中
-(add-hook 'after-setting-font-hook #'my-cjk-font)
-
-;; 如果你的 Emacs 在图形界面下运行，可能需要这个条件判断
-(if (display-graphic-p)
-    (progn
-      (dolist (charset '(kana han cjk-misc bopomofo))
-        (set-fontset-font (frame-parameter nil 'font) charset (font-spec :family "Sarasa Mono SC" :size (floor (* 1.1 (frame-char-height)))))) ; 调整中文大小，使其与英文匹配
-      ;; 也可以尝试其他中文字体，例如 "PingFang SC"
-      ;; (set-fontset-font (frame-parameter nil 'font) 'han (font-spec :family "PingFang SC"))
-      ))
+;; --- 设置字体为unicode模块的字体 ---
+(setq doom-symbol-font (font-spec :family "JuliaMono")) ;;将分析第一个字体是否包含非拉丁字符的字形，该字体是 doom-symbol-font
+(setq doom-symbol-font doom-font)  ;;如果你的 doom-font 提供了良好的 unicode 覆盖率，请使用,如果您的字体没有提供某些字形，此包将尽力寻找另一种提供的字体。
+;; 如果您想要默认使用 Symbola 字体 Miscellaneous Symbols ，请使用
+(after! unicode-fonts
+  (push "Symbola" (cadr (assoc "Miscellaneous Symbols" unicode-fonts-block-font-mapping))))
 
 
 ;; --- Org Mode 和 Org-roam 配置 ---
@@ -79,17 +56,21 @@
 ;; --- Org-agenda日历检索设置 ---
 
 (after! org
-  ;; 确保 org-agenda-files 变量是列表形式
-    ;; 将~/org/添加到org-agenda-files中
-  ;; 将 org-roam-directory 添加到 org-agenda-files 中
-  ;; org-roam-directory 通常会在 org-roam 加载后才被定义，所以放在 after! org 里是安全的
-  (add-to-list 'org-agenda-files org-roam-directory)
+  ;; 确保 org-agenda-files 是一个列表，防止类型错误
+  (unless (listp org-agenda-files)
+    (setq org-agenda-files nil))
 
-  ;; 确保 Org Agenda 知道要递归扫描目录
-  ;; 如果您之前已经设置了其他目录，也可以这样追加
-  ;; (setq org-agenda-files (append org-agenda-files (list org-roam-directory)))
-  ;; 或者更简单粗暴，直接赋值
-  ;; (setq org-agenda-files (list org-roam-directory "~/path/to/your/other/org-files/"))
+  ;; 添加你的主 Org 目录 (例如 ~/org/)
+  (add-to-list 'org-agenda-files org-directory)
+
+  ;; 显式添加你的 Org-roam 目录 (例如 ~/org/roam/)
+  ;; 即使它在 org-directory 之下，显式添加可以增加代码的清晰度和未来的灵活性
+  (add-to-list 'org-agenda-files org-roam-directory t)
+  ;; 如果你的 daily 文件夹是 org/roam/daily，并且你希望它被显式包含
+  ;; 尽管父目录递归会包含它，但你也可以显式添加，以防万一或为了明确性
+  (add-to-list 'org-agenda-files (expand-file-name "daily/" org-roam-directory) t)
+  ;; 注意：如果 org-roam-directory 已经是 ~/org/roam/，那么上面这行会添加 ~/org/roam/daily/
+  ;; ... 如果有其他需要添加到 agenda 的特定目录，也在此处添加 ...
   )
 
 
@@ -103,9 +84,45 @@
         org-roam-ui-open-on-start t)) ; Emacs 启动时自动打开 Org-roam-UI (可选，可能会增加启动时间)
 
 
-
-(set-language-environment "UTF-8")
+;; 设置默认编码为 UTF-8
+(set-default-coding-systems 'utf-8)
 (prefer-coding-system 'gbk)
+(prefer-coding-system 'utf-8)
+(setq-default buffer-file-coding-system 'utf-8)
+;; ---设置consult-ripgrep支持中文搜索 ---
+(set-language-environment "UTF-8")
 (add-to-list 'process-coding-system-alist
                         '("[rR][gG]" . (utf-8 . gbk-dos)))
-(setq-default buffer-file-coding-system 'utf-8-unix)
+
+
+;; --- 设置deft搜索扫描目录 ---
+(setq deft-directory "~/org/")
+
+
+;; --- 设置连续按fd等于ESC ---
+(setq evil-escape-key-sequence "fd") ; 快速连按 fd 触发 Esc
+
+
+
+;; 1. 设置 Emacs 启动时最大化窗口
+;; 推荐使用 initial-frame-alist，因为它只影响第一个启动的 Emacs 窗口
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
+
+;; 如果你希望所有新创建的 frame 也最大化，可以使用 default-frame-alist
+;; 但通常 initial-frame-alist 已经足够
+;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
+
+;; 2. 启动时启用 big-font-mode
+;; `big-font-mode` 是 Doom Emacs 内置的一个方便模式，用于临时放大字体
+;; 要在启动时启用它，我们可以在 `window-setup-hook` 中添加它
+(add-hook 'window-setup-hook #'doom-big-font-mode)
+
+;; 注意：如果你想要自定义 big-font-mode 的字体大小，
+;; 你可以在此之前设置 `doom-big-font` 变量。
+;; 例如，如果你想将 big font 设置为 22pt 的 Fira Code：
+;; (setq doom-big-font (font-spec :family "Fira Code" :size 22))
+;; 确保你的系统上安装了相应的字体。
+
+
+
+
