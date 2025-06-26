@@ -22,19 +22,8 @@
 
 
 
-;; --- 设置字体为unicode模块的字体 ---
-(setq doom-symbol-font (font-spec :family "JuliaMono")) ;;将分析第一个字体是否包含非拉丁字符的字形，该字体是 doom-symbol-font
-(setq doom-symbol-font doom-font)  ;;如果你的 doom-font 提供了良好的 unicode 覆盖率，请使用,如果您的字体没有提供某些字形，此包将尽力寻找另一种提供的字体。
-;; 如果您想要默认使用 Symbola 字体 Miscellaneous Symbols ，请使用
-(after! unicode-fonts
-  (push "Symbola" (cadr (assoc "Miscellaneous Symbols" unicode-fonts-block-font-mapping))))
-
 
 ;; --- Org Mode 和 Org-roam 配置 ---
-;; 确保你的 Doom Emacs init.el 中已经启用了 org 和 org-roam 模块，例如：
-;; (org +roam)
-;; 如果你想要 Org-roam UI，则为：
-;; (org +roam +ui)
 
 ;; 定义你的主 Org 目录。所有通用的 Org 文件都应该放在这里。
 (setq org-directory (file-truename "~/org/"))
@@ -74,6 +63,9 @@
   )
 
 
+(use-package! websocket
+    :after org-roam)
+
 ;; --- Org-roam-UI 配置 ---
 (use-package! org-roam-ui
   :after org-roam ; 确保 org-roam 加载后才加载 org-roam-ui
@@ -84,15 +76,26 @@
         org-roam-ui-open-on-start t)) ; Emacs 启动时自动打开 Org-roam-UI (可选，可能会增加启动时间)
 
 
-;; 设置默认编码为 UTF-8
-(set-default-coding-systems 'utf-8)
-(prefer-coding-system 'gbk)
-(prefer-coding-system 'utf-8)
-(setq-default buffer-file-coding-system 'utf-8)
 ;; ---设置consult-ripgrep支持中文搜索 ---
 (set-language-environment "UTF-8")
+(prefer-coding-system 'gbk)
 (add-to-list 'process-coding-system-alist
                         '("[rR][gG]" . (utf-8 . gbk-dos)))
+(setq-default buffer-file-coding-system 'utf-8-unix)
+
+;;--- 解决find note出现文件名乱码的问题 ---
+(defun projectile-files-via-ext-command@decode-utf-8 (root command)
+  "Advice override `projectile-files-via-ext-command' to decode shell output."
+  (when (stringp command)
+    (let ((default-directory root))
+      (with-temp-buffer
+        (shell-command command t "*projectile-files-errors*")
+        (decode-coding-region (point-min) (point-max) 'utf-8) ;; ++
+        (let ((shell-output (buffer-substring (point-min) (point-max))))
+          (split-string (string-trim shell-output) "\0" t))))))
+
+(advice-add 'projectile-files-via-ext-command
+            :override 'projectile-files-via-ext-command@decode-utf-8)
 
 
 ;; --- 设置deft搜索扫描目录 ---
@@ -124,5 +127,17 @@
 ;; 确保你的系统上安装了相应的字体。
 
 
+;; org-srs configuration
+(use-package fsrs
+  :ensure t
+  :defer t)
 
-
+(use-package org-srs
+  :vc (:url "https://github.com/bohonghuang/org-srs.git" :rev "HEAD")
+  :defer t
+  :hook (org-mode . org-srs-embed-overlay-mode)
+  :bind (:map org-mode-map
+         ("<f5>" . org-srs-review-rate-easy)
+         ("<f6>" . org-srs-review-rate-good)
+         ("<f7>" . org-srs-review-rate-hard)
+         ("<f8>" . org-srs-review-rate-again)))
