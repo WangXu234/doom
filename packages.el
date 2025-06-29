@@ -57,3 +57,8 @@
 (package! fsrs)
 (package! org-srs
   :recipe (:host github :repo "bohonghuang/org-srs")) ; 或者直接使用 :url "https://github.com/bohonghuang/org-srs.git"
+
+;; pyim-greatdict: 为 pyim 提供大型词库
+(package! pyim-greatdict :recipe (:host github :repo "tumashu/pyim-greatdict"))
+;; pyim-basedict: pyim 的基础词库
+(package! pyim-basedict)

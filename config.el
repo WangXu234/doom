@@ -1,5 +1,68 @@
+;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+
+;; Place your private configuration here! Remember, you do not need to run 'doom
+;; sync' after modifying this file!
 
 
+;; Some functionality uses this to identify you, e.g. GPG configuration, email
+;; clients, file templates and snippets. It is optional.
+;; (setq user-full-name "John Doe"
+;;       user-mail-address "john@doe.com")
+
+;; Doom exposes five (optional) variables for controlling fonts in Doom:
+;;
+;; - `doom-font' -- the primary font to use
+;; - `doom-variable-pitch-font' -- a non-monospace font (where applicable)
+;; - `doom-big-font' -- used for `doom-big-font-mode'; use this for
+;;   presentations or streaming.
+;; - `doom-symbol-font' -- for symbols
+;; - `doom-serif-font' -- for the `fixed-pitch-serif' face
+;;
+;; See 'C-h v doom-font' for documentation and more examples of what they
+;; accept. For example:
+;;
+;;(setq doom-font (font-spec :family "Fira Code" :size 12 :weight 'semi-light)
+;;      doom-variable-pitch-font (font-spec :family "Fira Sans" :size 13))
+;;
+;; If you or Emacs can't find your font, use 'M-x describe-font' to look them
+;; up, `M-x eval-region' to execute elisp code, and 'M-x doom/reload-font' to
+;; refresh your font settings. If Emacs still can't find your font, it likely
+;; wasn't installed correctly. Font issues are rarely Doom issues!
+
+;; There are two ways to load a theme. Both assume the theme is installed and
+;; available. You can either set `doom-theme' or manually load a theme with the
+;; `load-theme' function. This is the default:
+(setq doom-theme 'doom-one)
+
+;; This determines the style of line numbers in effect. If set to `nil', line
+;; numbers are disabled. For relative line numbers, set this to `relative'.
+(setq display-line-numbers-type t)
+
+;; If you use `org' and don't want your org files in the default location below,
+;; change `org-directory'. It must be set before org loads!
+(setq org-directory "~/org/")
+
+
+;; Whenever you reconfigure a package, make sure to wrap your config in an
+;; `after!' block, otherwise Doom's defaults may override your settings. E.g.
+;;
+;;   (after! PACKAGE
+;;     (setq x y))
+;;
+;; The exceptions to this rule:
+;;
+;;   - Setting file/directory variables (like `org-directory')
+;;   - Setting variables which explicitly tell you to set them before their
+;;     package is loaded (see 'C-h v VARIABLE' to look up their documentation).
+;;   - Setting doom variables (which start with 'doom-' or '+').
+;;
+;; Here are some additional functions/macros that will help you configure Doom.
+;;
+;; - `load!' for loading external *.el files relative to this one
+;; - `use-package!' for configuring packages
+;; - `after!' for running code after a package has loaded
+;; - `add-load-path!' for adding directories to the `load-path', relative to
+;;   this file. Emacs searches the `load-path' when you load packages with
 ;;   `require' or `use-package'.
 ;; - `map!' for binding new keys
 ;;
@@ -11,23 +74,11 @@
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
-;;
-;;
-;;;; Custom (user-defined) package archives that package.el uses.
-;;
-;; Note that Doom's `:repo` module overrides this value for its own
-;; internal purposes, and you should use `package!` to specify custom
-;; repos from ELPA, MELPA or other sources. This variable is only for
-;; archives that you want to enable *globally*.
 
 
 
 
 ;; --- Org Mode 和 Org-roam 配置 ---
-
-;; 定义你的主 Org 目录。所有通用的 Org 文件都应该放在这里。
-(setq org-directory (file-truename "~/org/"))
-
 ;; Org-roam 笔记的存储目录，通常是你的主 org-directory 的一个子目录。
 ;; 确保这个目录存在。
 (setq org-roam-directory (file-truename "~/org/roam/"))
@@ -51,7 +102,6 @@
 
   ;; 添加你的主 Org 目录 (例如 ~/org/)
   (add-to-list 'org-agenda-files org-directory)
-
   ;; 显式添加你的 Org-roam 目录 (例如 ~/org/roam/)
   ;; 即使它在 org-directory 之下，显式添加可以增加代码的清晰度和未来的灵活性
   (add-to-list 'org-agenda-files org-roam-directory t)
@@ -78,10 +128,15 @@
 
 ;; ---设置consult-ripgrep支持中文搜索 ---
 (set-language-environment "UTF-8")
-(prefer-coding-system 'gbk)
+;; (prefer-coding-system 'gbk)
 (add-to-list 'process-coding-system-alist
                         '("[rR][gG]" . (utf-8 . gbk-dos)))
 (setq-default buffer-file-coding-system 'utf-8-unix)
+(set-charset-priority 'unicode)
+(prefer-coding-system 'utf-8)
+(setq system-time-locale "C")
+
+
 
 ;;--- 解决find note出现文件名乱码的问题 ---
 (defun projectile-files-via-ext-command@decode-utf-8 (root command)
@@ -141,3 +196,20 @@
          ("<f6>" . org-srs-review-rate-good)
          ("<f7>" . org-srs-review-rate-hard)
          ("<f8>" . org-srs-review-rate-again)))
+
+
+;;--- 使用原生编译，提升emacs性能 ---
+(setq native-comp-speed 3) ;; 3 是最高优化级别
+(setq gc-cons-threshold (* 50 1024 1024))
+
+;; --- 配置pyim输入法 ---
+(require 'pyim)
+(require 'pyim-greatdict)
+(pyim-greatdict-enable)
+(pyim-basedict-enable)
+(setq default-input-method "pyim")
+(pyim-default-scheme 'microsoft-shuangpin)
+(setq pyim-cloudim 'baidu)
+(setq pyim-cloudim 'google)
+(require 'pyim-dregcache)
+(setq pyim-dcache-backend 'pyim-dregcache)
