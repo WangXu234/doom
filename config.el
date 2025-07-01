@@ -205,11 +205,77 @@
 ;; --- 配置pyim输入法 ---
 (require 'pyim)
 (require 'pyim-greatdict)
-(pyim-greatdict-enable)
-(pyim-basedict-enable)
+(require 'pyim-cregexp-utils)
+(require 'pyim-cstring-utils)
+
 (setq default-input-method "pyim")
 (pyim-default-scheme 'microsoft-shuangpin)
+(pyim-greatdict-enable)
+(pyim-basedict-enable)
 (setq pyim-cloudim 'baidu)
 (setq pyim-cloudim 'google)
 (require 'pyim-dregcache)
 (setq pyim-dcache-backend 'pyim-dregcache)
+;;Emacs 启动时加载 pyim 词库
+(add-hook 'emacs-startup-hook
+          (lambda () (pyim-restart-1 t)))
+
+
+;; 输入法内切换中英文输入
+(global-set-key (kbd "C-:") 'pyim-toggle-input-ascii)
+
+;;user posframe
+(require 'posframe)
+(setq pyim-page-tooltip 'posframe)
+
+;;取消模糊音
+(setq pyim-pinyin-fuzzy-alist nil)
+
+;; 开启代码搜索中文功能（比如拼音，五笔码等）
+(pyim-isearch-mode 1)
+
+;;让 vertico, selectrum 等补全框架，通过 orderless 支持拼音搜索候选项功能
+(defun my-orderless-regexp (orig-func component)
+  (let ((result (funcall orig-func component)))
+    (pyim-cregexp-build result)))
+
+(advice-add 'orderless-regexp :around #'my-orderless-regexp)
+
+
+;; 确保 posframe 已经安装并加载
+(require 'posframe)
+(setq pyim-page-tooltip '(posframe popup minibuffer))
+
+;;---解决minibuffer中pyim输入现实的问题---
+;; 定义一个建议函数，用于修改 pyim-page-info-format 的行为
+(defun my-pyim-page-info-format-minibuffer-advice (original-function style page-info)
+  ;; 如果当前样式是 minibuffer (Minibuffer显示模式)
+  (if (eq style 'minibuffer)
+      ;; 使用自定义的格式字符串：拼音在第一行，候选词在第二行
+      (format "%s%s:\n%s(%s/%s)" ; 注意这里的 \n (换行符)
+              ;; 生成拼音预览字符串
+              (pyim-page-preview-create
+                (plist-get page-info :scheme))
+              ;; 辅助输入法提示 (如果有)
+              (if (plist-get page-info :assistant-enable) " (辅)" "")
+              ;; 生成候选词列表字符串
+              (pyim-page-menu-create
+                (plist-get page-info :candidates)
+                (plist-get page-info :position)
+                nil ; 没有行分隔符
+                (plist-get page-info :hightlight-current))
+              ;; 当前页码
+              (plist-get page-info :current-page)
+              ;; 总页数
+              (plist-get page-info :total-page))
+    ;; 如果是其他显示样式，则调用原始的 pyim-page-info-format 函数
+    (funcall original-function style page-info)))
+
+;; 将我们的建议函数添加到 pyim-page-info-format 函数上
+(advice-add 'pyim-page-info-format :around #'my-pyim-page-info-format-minibuffer-advice)
+
+;; 推荐：小屏幕显式设置 Pyim 在 Minibuffer 中使用 'minibuffer 风格显示
+;;(setq pyim-page-tooltip 'minibuffer)
+
+;; 可选：如果两行显示后 Minibuffer 高度不够，可以尝试增加 Minibuffer 的最大高度
+;; (setq max-mini-window-height 5) ; 根据需要调整此值
