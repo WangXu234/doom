@@ -114,7 +114,7 @@
 
 
 (use-package! websocket
-    :after org-roam)
+  :after org-roam)
 
 ;; --- Org-roam-UI 配置 ---
 (use-package! org-roam-ui
@@ -126,40 +126,49 @@
         org-roam-ui-open-on-start t)) ; Emacs 启动时自动打开 Org-roam-UI (可选，可能会增加启动时间)
 
 
-;; ---设置consult-ripgrep支持中文搜索 ---
-(set-language-environment "UTF-8")
-;; (prefer-coding-system 'gbk)
-(add-to-list 'process-coding-system-alist
-                        '("[rR][gG]" . (utf-8 . gbk-dos)))
-(setq-default buffer-file-coding-system 'utf-8-unix)
-(set-charset-priority 'unicode)
-(prefer-coding-system 'utf-8)
-(setq system-time-locale "C")
+;; ;; ---设置consult-ripgrep支持中文搜索，警告：仅在Windows下使用这些代码，linux不要乱用 ---
+;; (set-language-environment "UTF-8")
+;; ;; (prefer-coding-system 'gbk)
+;; (add-to-list 'process-coding-system-alist
+;;                         '("[rR][gG]" . (utf-8 . gbk-dos)))
+;; (setq-default buffer-file-coding-system 'utf-8-unix)
+;; (set-charset-priority 'unicode)
+;; (prefer-coding-system 'utf-8)
+;; (setq system-time-locale "C")
 
 
 
 ;;--- 解决find note出现文件名乱码的问题 ---
-(defun projectile-files-via-ext-command@decode-utf-8 (root command)
-  "Advice override `projectile-files-via-ext-command' to decode shell output."
-  (when (stringp command)
-    (let ((default-directory root))
-      (with-temp-buffer
-        (shell-command command t "*projectile-files-errors*")
-        (decode-coding-region (point-min) (point-max) 'utf-8) ;; ++
-        (let ((shell-output (buffer-substring (point-min) (point-max))))
-          (split-string (string-trim shell-output) "\0" t))))))
+;; (defun projectile-files-via-ext-command@decode-utf-8 (root command)
+;;   "Advice override `projectile-files-via-ext-command' to decode shell output."
+;;   (when (stringp command)
+;;     (let ((default-directory root))
+;;       (with-temp-buffer
+;;         (shell-command command t "*projectile-files-errors*")
+;;         (decode-coding-region (point-min) (point-max) 'utf-8) ;; ++
+;;         (let ((shell-output (buffer-substring (point-min) (point-max))))
+;;           (split-string (string-trim shell-output) "\0" t))))))
 
-(advice-add 'projectile-files-via-ext-command
-            :override 'projectile-files-via-ext-command@decode-utf-8)
+;; (advice-add 'projectile-files-via-ext-command
+;;             :override 'projectile-files-via-ext-command@decode-utf-8)
 
-
-;; --- 设置deft搜索扫描目录 ---
+;; 设置deft搜索你的笔记目录为 ~/org
 (setq deft-directory "~/org/")
 
+;; 确保 Deft 也会递归搜索子目录
+;; 这是 Deft 的默认行为，但明确设置一下也无妨
+(setq deft-recursive t)
+
+;; 设置 Deft 扫描的文件类型
+;; 如果你的 Org 笔记通常是 .org 扩展名，请确保包含它
+(setq deft-extensions '("txt" "md" "org"))
+
+;; 可选：如果你希望 Deft 不仅搜索文件名，还搜索文件内容摘要
+;; 并且你的 Org 文件包含 Org-mode 语法，可以启用解析
+(setq deft-parse-org t)
 
 ;; --- 设置连续按fd等于ESC ---
 (setq evil-escape-key-sequence "fd") ; 快速连按 fd 触发 Esc
-
 
 
 ;; 1. 设置 Emacs 启动时最大化窗口
@@ -168,12 +177,12 @@
 
 ;; 如果你希望所有新创建的 frame 也最大化，可以使用 default-frame-alist
 ;; 但通常 initial-frame-alist 已经足够
-;; (add-to-list 'default-frame-alist '(fullscreen . maximized))
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; 2. 启动时启用 big-font-mode
 ;; `big-font-mode` 是 Doom Emacs 内置的一个方便模式，用于临时放大字体
 ;; 要在启动时启用它，我们可以在 `window-setup-hook` 中添加它
-(add-hook 'window-setup-hook #'doom-big-font-mode)
+;; (add-hook 'window-setup-hook #'doom-big-font-mode)
 
 ;; 注意：如果你想要自定义 big-font-mode 的字体大小，
 ;; 你可以在此之前设置 `doom-big-font` 变量。
@@ -183,19 +192,20 @@
 
 
 ;; org-srs configuration
-(use-package fsrs
-  :ensure t
-  :defer t)
+(use-package! fsrs
+  :defer t) ; Defer loading until needed
 
-(use-package org-srs
-  :vc (:url "https://github.com/bohonghuang/org-srs.git" :rev "HEAD")
-  :defer t
+(use-package! org-srs
+  :after org ; Ensure org-srs loads after org-mode is available
   :hook (org-mode . org-srs-embed-overlay-mode)
-  :bind (:map org-mode-map
-         ("<f5>" . org-srs-review-rate-easy)
-         ("<f6>" . org-srs-review-rate-good)
-         ("<f7>" . org-srs-review-rate-hard)
-         ("<f8>" . org-srs-review-rate-again)))
+  :config
+  (map! :map org-mode-map
+        :localleader
+        "j j" #'org-srs-review-rate-again ; j for Again (最难)
+        "j k" #'org-srs-review-rate-hard  ; k for Hard
+        "j l" #'org-srs-review-rate-good  ; l for Good
+        "j ;" #'org-srs-review-rate-easy)  ; ; for Easy (最易)
+  )
 
 
 ;;--- 使用原生编译，提升emacs性能 ---
@@ -222,7 +232,7 @@
 
 
 ;; 输入法内切换中英文输入
-(global-set-key (kbd "C-:") 'pyim-toggle-input-ascii)
+(global-set-key (kbd "C-c i") 'pyim-toggle-input-ascii)
 
 ;;user posframe
 (require 'posframe)
@@ -241,6 +251,10 @@
 
 (advice-add 'orderless-regexp :around #'my-orderless-regexp)
 
+;;使用其它字符翻页
+(define-key pyim-mode-map "." 'pyim-page-next-page)
+(define-key pyim-mode-map "," 'pyim-page-previous-page)
+
 
 ;; 确保 posframe 已经安装并加载
 (require 'posframe)
@@ -255,15 +269,15 @@
       (format "%s%s:\n%s(%s/%s)" ; 注意这里的 \n (换行符)
               ;; 生成拼音预览字符串
               (pyim-page-preview-create
-                (plist-get page-info :scheme))
+               (plist-get page-info :scheme))
               ;; 辅助输入法提示 (如果有)
               (if (plist-get page-info :assistant-enable) " (辅)" "")
               ;; 生成候选词列表字符串
               (pyim-page-menu-create
-                (plist-get page-info :candidates)
-                (plist-get page-info :position)
-                nil ; 没有行分隔符
-                (plist-get page-info :hightlight-current))
+               (plist-get page-info :candidates)
+               (plist-get page-info :position)
+               nil ; 没有行分隔符
+               (plist-get page-info :hightlight-current))
               ;; 当前页码
               (plist-get page-info :current-page)
               ;; 总页数
@@ -274,8 +288,7 @@
 ;; 将我们的建议函数添加到 pyim-page-info-format 函数上
 (advice-add 'pyim-page-info-format :around #'my-pyim-page-info-format-minibuffer-advice)
 
-;; 推荐：小屏幕显式设置 Pyim 在 Minibuffer 中使用 'minibuffer 风格显示
-;;(setq pyim-page-tooltip 'minibuffer)
-
 ;; 可选：如果两行显示后 Minibuffer 高度不够，可以尝试增加 Minibuffer 的最大高度
 ;; (setq max-mini-window-height 5) ; 根据需要调整此值
+
+
