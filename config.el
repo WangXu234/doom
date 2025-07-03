@@ -75,8 +75,7 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
-
-
+(setq doom-symbol-font doom-font)
 
 ;; --- Org Mode 和 Org-roam 配置 ---
 ;; Org-roam 笔记的存储目录，通常是你的主 org-directory 的一个子目录。
