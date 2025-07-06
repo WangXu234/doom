@@ -200,10 +200,10 @@
   :config
   (map! :map org-mode-map
         :localleader
-        "j j" #'org-srs-review-rate-again ; j for Again (最难)
-        "j k" #'org-srs-review-rate-hard  ; k for Hard
-        "j l" #'org-srs-review-rate-good  ; l for Good
-        "j ;" #'org-srs-review-rate-easy)  ; ; for Easy (最易)
+        "j a" #'org-srs-review-rate-again ; j for Again (最难)
+        "j h" #'org-srs-review-rate-hard  ; k for Hard
+        "j g" #'org-srs-review-rate-good  ; l for Good
+        "j e" #'org-srs-review-rate-easy)  ; ; for Easy (最易)
   )
 
 
