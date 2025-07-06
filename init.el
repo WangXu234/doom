@@ -25,7 +25,7 @@
        ;; (corfu +orderless
        ;;        +icons
        ;;        +dabbrev)  ; complete with cap(f), cape and a flying feather!
-       ;; ;;helm              ; the *other* search engine for love and life
+       ;;helm              ; the *other* search engine for love and life
        ;;ido               ; the other *other* search engine...
        ;;ivy               ; a search engine for love and life
        (vertico +childframe
@@ -164,7 +164,6 @@
             +dragndrop
             +present
             +pretty
-            +srs
             )                  ; organize your plain life in plain text
        ;;php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more

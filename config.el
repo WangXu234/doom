@@ -207,10 +207,6 @@
   )
 
 
-;;--- 使用原生编译，提升emacs性能 ---
-(setq native-comp-speed 3) ;; 3 是最高优化级别
-(setq gc-cons-threshold (* 50 1024 1024))
-
 ;; --- 配置pyim输入法 ---
 (require 'pyim)
 (require 'pyim-greatdict)
@@ -219,8 +215,8 @@
 
 (setq default-input-method "pyim")
 (pyim-default-scheme 'microsoft-shuangpin)
-(pyim-greatdict-enable)
 (pyim-basedict-enable)
+(pyim-greatdict-enable)
 (setq pyim-cloudim 'baidu)
 (setq pyim-cloudim 'google)
 (require 'pyim-dregcache)
@@ -233,7 +229,7 @@
 ;; 输入法内切换中英文输入
 (global-set-key (kbd "C-c i") 'pyim-toggle-input-ascii)
 
-;;user posframe
+;;use posframe
 (require 'posframe)
 (setq pyim-page-tooltip 'posframe)
 
@@ -255,11 +251,7 @@
 (define-key pyim-mode-map "," 'pyim-page-previous-page)
 
 
-;; 确保 posframe 已经安装并加载
-(require 'posframe)
-(setq pyim-page-tooltip '(posframe popup minibuffer))
-
-;;---解决minibuffer中pyim输入现实的问题---
+;;---解决minibuffer中pyim输入显式的问题---
 ;; 定义一个建议函数，用于修改 pyim-page-info-format 的行为
 (defun my-pyim-page-info-format-minibuffer-advice (original-function style page-info)
   ;; 如果当前样式是 minibuffer (Minibuffer显示模式)

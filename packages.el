@@ -62,6 +62,3 @@
 ;; pyim-basedict: pyim 的基础词库
 (package! pyim-basedict)
 
-
-;; For EAF
-(package! eaf :recipe (:host github :repo "emacs-eaf/emacs-application-framework" :files ("*.el" "core" "app" "extension")))
