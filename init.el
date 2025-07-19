@@ -16,27 +16,30 @@
 
 (doom! :input
        ;;bidi              ; (tfel ot) thgir etirw uoy gnipleh
-       chinese
+       (chinese +childframe)
        ;;japanese
        ;;layout            ; auie,ctsrnm is the superior home row
 
        :completion
-       company           ; the ultimate code completion backend
-       (corfu +orderless)  ; complete with cap(f), cape and a flying feather!
+       (company +childframe)          ; the ultimate code completion backend
+       ;; (corfu +orderless
+       ;;        +icons
+       ;;        +dabbrev)  ; complete with cap(f), cape and a flying feather!
        ;;helm              ; the *other* search engine for love and life
        ;;ido               ; the other *other* search engine...
        ;;ivy               ; a search engine for love and life
-       vertico           ; the search engine of the future
+       (vertico +childframe
+                +icons)         ; the search engine of the future
 
        :ui
-       ;;deft              ; notational velocity for Emacs
+       deft              ; notational velocity for Emacs
        doom              ; what makes DOOM look the way it does
        doom-dashboard    ; a nifty splash screen for Emacs
        ;;doom-quit         ; DOOM quit-message prompts when you quit Emacs
-       ;;(emoji +unicode)  ; 🙂
+       (emoji +unicode)  ; 🙂
        hl-todo           ; highlight TODO/FIXME/NOTE/DEPRECATED/HACK/REVIEW
        ;;indent-guides     ; highlighted indent columns
-       ;;ligatures         ; ligatures and symbols to make your code pretty again
+       (ligatures +pretty)         ; ligatures and symbols to make your code pretty again
        ;;minimap           ; show a map of the code on the side
        modeline          ; snazzy, Atom-inspired modeline, plus API
        ;;nav-flash         ; blink cursor line after big motions
@@ -46,18 +49,18 @@
        smooth-scroll     ; So smooth you won't believe it's not butter
        ;;tabs              ; a tab bar for Emacs
        treemacs          ; a project drawer, like neotree but cooler
-       ;;unicode           ; extended unicode support for various languages
+       unicode           ; extended unicode support for various languages
        (vc-gutter +pretty) ; vcs diff in the fringe
        vi-tilde-fringe   ; fringe tildes to mark beyond EOB
-       ;;window-select     ; visually switch windows
+       (window-select +numbers)    ; visually switch windows
        workspaces        ; tab emulation, persistence & separate workspaces
-       ;;zen               ; distraction-free coding or writing
+       zen               ; distraction-free coding or writing
 
        :editor
        (evil +everywhere); come to the dark side, we have cookies
        file-templates    ; auto-snippets for empty files
        fold              ; (nigh) universal code folding
-       ;;(format +onsave)  ; automated prettiness
+       (format +onsave)  ; automated prettiness
        ;;god               ; run Emacs commands without modifier keys
        ;;lispy             ; vim for lisp, for people who don't like vim
        ;;multiple-cursors  ; editing in many places at once
@@ -68,10 +71,11 @@
        word-wrap         ; soft wrapping with language-aware indent
 
        :emacs
-       dired             ; making dired pretty [functional]
+       (dired +dirvish
+              +icons)    ; making dired pretty [functional]
        electric          ; smarter, keyword-based electric-indent
-       ;;eww               ; the internet is gross
-       ;;ibuffer           ; interactive buffer management
+       eww               ; the internet is gross
+       (ibuffer +icons)    ; interactive buffer management
        undo              ; persistent, smarter undo for your inevitable mistakes
        vc                ; version-control and Emacs, sitting in a tree
 
@@ -83,7 +87,7 @@
 
        :checkers
        syntax              ; tasing you for every semicolon you forget
-       ;;(spell +flyspell) ; tasing you for misspelling mispelling
+       ;; (spell +flyspell) ; tasing you for misspelling mispelling
        ;;grammar           ; tasing grammar mistake every you make
 
        :tools
@@ -98,7 +102,7 @@
        (eval +overlay)     ; run code, run (also, repls)
        lookup              ; navigate your code and its documentation
        ;;llm               ; when I said you needed friends, I didn't mean...
-       ;;lsp               ; M-x vscode
+       lsp               ; M-x vscode
        magit             ; a git porcelain for Emacs
        ;;make              ; run make tasks from Emacs
        ;;pass              ; password manager for nerds
@@ -109,8 +113,8 @@
        ;;upload            ; map local to remote projects via ssh/ftp
 
        :os
-       (:if (featurep :system 'macos) macos)  ; improve compatibility with macOS
-       ;;tty               ; improve the terminal Emacs experience
+       ;;(:if (featurep :system 'macos) macos)  ; improve compatibility with macOS
+       tty               ; improve the terminal Emacs experience
 
        :lang
        ;;agda              ; types of types of types of types...
@@ -150,18 +154,22 @@
        ;;lean              ; for folks with too much to prove
        ;;ledger            ; be audit you can be
        ;;lua               ; one-based indices? one-based indices
-       markdown          ; writing docs for people to ignore
+       markdown            ; writing docs for people to ignore
        ;;nim               ; python + lisp at the speed of c
        ;;nix               ; I hereby declare "nix geht mehr!"
        ;;ocaml             ; an objective camel
        (org +roam2
+            +ui
             +agenda
-        ); organize your plain life in plain text
+            +dragndrop
+            +present
+            +pretty
+            )                  ; organize your plain life in plain text
        ;;php               ; perl's insecure younger brother
        ;;plantuml          ; diagrams for confusing people more
        ;;graphviz          ; diagrams for confusing yourself even more
        ;;purescript        ; javascript, but functional
-       python            ; beautiful is better than ugly
+       python              ; beautiful is better than ugly
        ;;qt                ; the 'cutest' gui framework ever
        ;;racket            ; a DSL for DSLs
        ;;raku              ; the artist formerly known as perl6
@@ -195,3 +203,5 @@
        :config
        ;;literate
        (default +bindings +smartparens))
+
+

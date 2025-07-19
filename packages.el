@@ -14,8 +14,8 @@
 ;; https://github.com/radian-software/straight.el#the-recipe-format
 ;; (package! another-package
 ;;   :recipe (:host github :repo "username/repo"))
-(package! org-roam
-  :recipe (:host github :repo "org-roam/org-roam" :branch "main"))
+;; (package! org-roam
+;;   :recipe (:host github :repo "org-roam/org-roam" :branch "main"))
 
 ;; If the package you are trying to install does not contain a PACKAGENAME.el
 ;; file, or is located in a subdirectory of the repo, you'll need to specify
@@ -51,8 +51,18 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;; (unpin! t)
 
+(unpin! org-roam)
 (package! org-roam-ui)
 
-;; 如果 Org-roam-UI 运行时有问题，有时候需要解绑 org-roam 的版本，
-;; 但通常 Doom Emacs 会处理好依赖关系。
-;; (unpin! org-roam) ; 只有在 org-roam-ui 提示版本冲突时才尝试
+(package! fsrs)
+(package! org-srs :recipe (:host github :repo "bohonghuang/org-srs")) ; Specify the recipe for org-sr
+
+;; pyim-greatdict: 为 pyim 提供大型词库
+(package! pyim-greatdict :recipe (:host github :repo "tumashu/pyim-greatdict"))
+;; pyim-basedict: pyim 的基础词库
+(package! pyim-basedict)
+
+(package! org-roam-ql)
+(package! org-ql)
+
+(package! vulpea)
