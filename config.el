@@ -235,54 +235,6 @@ tasks."
 ;; --- 设置连续按fd等于ESC ---
 (setq evil-escape-key-sequence "fd") ; 快速连按 fd 触发 Esc
 
-
-;; 仅当出现类似 "Not an Org time string: [Y-10-16 Mi 16:%]" 的错误时尝试
-(with-eval-after-load 'org-drill
-  (defun org-drill-time-to-inactive-org-timestamp (time)
-    "Convert TIME into org-mode timestamp."
-    ;; 确保这里使用的格式与当前 org-mode 的期望一致
-    ;; 注意：这可能需要根据你的 Org-mode 版本进行调整
-    (format-time-string (concat "[" (cdr org-time-stamp-formats) "]") time)))
-
-;; 自定义变量：控制 Org-roam 节点是否只显示标题
-;; 默认值为 nil，表示显示详细信息（标题和文件名）
-(defvar +my-org-roam-simple-display-p nil
-  "如果非空，Org-roam 节点只显示其标题。
-否则，显示标题和文件路径（详细模式）。")
-
-;; 切换 Org-roam 节点显示模式的函数
-(defun +my-org-roam-toggle-display-mode ()
-  "切换 Org-roam 节点在补全界面中的显示模式：
-在“只显示标题”和“显示标题及文件路径”之间切换。"
-  (interactive) ; 使函数可以交互式调用 (M-x) 或绑定到快捷键
-  ;; 翻转开关变量的值
-  (setq +my-org-roam-simple-display-p (not +my-org-roam-simple-display-p))
-
-  ;; 根据开关变量的值设置 org-roam-node-display-template
-  (if +my-org-roam-simple-display-p
-      (progn
-        ;; 简单模式：只显示标题
-        (setq org-roam-node-display-template "${title}")
-        (message "Org-roam 显示模式：简洁 (只显示标题)"))
-    (progn
-      ;; 详细模式：显示标题和文件路径
-      (setq org-roam-node-display-template "${title} ${file}")
-      (message "Org-roam 显示模式：详细 (标题和文件)"))))
-
-;; 在 org-roam 模块加载后进行配置
-(after! org-roam
-  ;; 首次加载时，根据 +my-org-roam-simple-display-p 的默认值设置显示模板
-  (if +my-org-roam-simple-display-p
-      (setq org-roam-node-display-template "${title}")
-    (setq org-roam-node-display-template "${title} ${file}")) ; 默认显示详细信息
-
-  ;; 绑定切换函数到快捷键
-  ;; 这里绑定到 SPC n r t (n r 是 org-roam 的 leader 键前缀)
-  (map! :leader
-        :prefix "n r" ; Doom Emacs 中 org-roam 的默认 leader 键前缀
-        "t" #'+my-org-roam-toggle-display-mode ; 't' 作为切换键
-        ))
-
 ;; 1. 设置 Emacs 启动时最大化窗口
 ;; 推荐使用 initial-frame-alist，因为它只影响第一个启动的 Emacs 窗口
 (add-to-list 'initial-frame-alist '(fullscreen . maximized))
@@ -310,6 +262,16 @@ tasks."
     ;; 注意：这可能需要根据你的 Org-mode 版本进行调整
     (format-time-string (concat "[" (cdr org-time-stamp-formats) "]") time)))
 
+;;精简 node find中搜索结果显示
+(after! org-roam
+  ;; Sets the display template for Org-roam nodes in completion interfaces.
+  ;; Displays the node's title, followed by its tags.
+  ;; If the file itself is an Org-roam node (which it always is), its title
+  ;; will also be displayed after the tags.
+  (setq org-roam-node-display-template "${title} ${tags} ${file-title}"))
+
+;;解决minibuffer中不能自动换行的问题
+(setq vertico-posframe-truncate-lines nil)
 
 ;; --- 配置pyim输入法 ---
 (require 'pyim)
