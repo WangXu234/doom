@@ -265,13 +265,13 @@ tasks."
 ;;精简 node find中搜索结果显示
 (after! org-roam
   ;; Sets the display template for Org-roam nodes in completion interfaces.
-  ;; Displays the node's title, followed by its tags.
-  ;; If the file itself is an Org-roam node (which it always is), its title
-  ;; will also be displayed after the tags.
-  (setq org-roam-node-display-template "${title} ${tags} ${file-title}"))
+  ;; Displays the node's type, followed by its tags, then its hierarchy.
+  (setq org-roam-node-display-template "${title} ${doom-tags:42} ${doom-hierarchy:*}"))
+
 
 ;;解决minibuffer中不能自动换行的问题
 (setq vertico-posframe-truncate-lines nil)
+(setq truncate-lines nil)
 
 ;; --- 配置pyim输入法 ---
 (require 'pyim)
