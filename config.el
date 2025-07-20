@@ -77,6 +77,16 @@
 
 (setq doom-symbol-font doom-font)
 
+;; 设置原生编译使用的 CPU 核心数量为所有可用核心。
+;; 这将最大化并行编译任务。
+;; 注意：这会在编译时显著增加 CPU 占用，可能导致系统暂时性卡顿。
+(setq native-comp-async-jobs-number (num-processors))
+
+;; 将原生编译的优化级别设置为最高 (3)。
+;; 这会使编译器花费更多时间进行优化，以生成运行时性能最好的机器码。
+;; 因此，编译过程会更慢，但编译完成后 Emacs 运行可能更快。
+(setq native-comp-speed 3)
+
 ;; --- Org Mode 和 Org-roam 配置 ---
 ;; Org-roam 笔记的存储目录，通常是你的主 org-directory 的一个子目录。
 ;; 确保这个目录存在。
@@ -93,7 +103,6 @@
   (message "Org-roam 目录 '%s' 已创建。" org-roam-directory))
 
 ;; --- Org-agenda日历检索设置 ---
-
 (after! org-roam
 ;;动态追踪agenda－files，完成的TODO自动排除
 ;;* dynamic agenda https://github.com/brianmcgillion/doomd/blob/master/config.org
@@ -165,14 +174,9 @@ tasks."
   (advice-add 'org-agenda-files :filter-return #'dynamic-agenda-files-advice)
   )
 
+
 ;; 设置org高级搜索
-(use-package! org-ql
-  ;; Set the directories where org-ql will search
-  :custom
-  (org-ql-search-dirs '("~/org")) ; <-- This is the key change
-  ;; Optionally, bind a key for quick access
-  :bind
-  ("C-c o q" . org-ql-search))
+(setq org-ql-search-directories-files-recursive t)
 
 (use-package! websocket
   :after org-roam)
@@ -232,6 +236,53 @@ tasks."
 (setq evil-escape-key-sequence "fd") ; 快速连按 fd 触发 Esc
 
 
+;; 仅当出现类似 "Not an Org time string: [Y-10-16 Mi 16:%]" 的错误时尝试
+(with-eval-after-load 'org-drill
+  (defun org-drill-time-to-inactive-org-timestamp (time)
+    "Convert TIME into org-mode timestamp."
+    ;; 确保这里使用的格式与当前 org-mode 的期望一致
+    ;; 注意：这可能需要根据你的 Org-mode 版本进行调整
+    (format-time-string (concat "[" (cdr org-time-stamp-formats) "]") time)))
+
+;; 自定义变量：控制 Org-roam 节点是否只显示标题
+;; 默认值为 nil，表示显示详细信息（标题和文件名）
+(defvar +my-org-roam-simple-display-p nil
+  "如果非空，Org-roam 节点只显示其标题。
+否则，显示标题和文件路径（详细模式）。")
+
+;; 切换 Org-roam 节点显示模式的函数
+(defun +my-org-roam-toggle-display-mode ()
+  "切换 Org-roam 节点在补全界面中的显示模式：
+在“只显示标题”和“显示标题及文件路径”之间切换。"
+  (interactive) ; 使函数可以交互式调用 (M-x) 或绑定到快捷键
+  ;; 翻转开关变量的值
+  (setq +my-org-roam-simple-display-p (not +my-org-roam-simple-display-p))
+
+  ;; 根据开关变量的值设置 org-roam-node-display-template
+  (if +my-org-roam-simple-display-p
+      (progn
+        ;; 简单模式：只显示标题
+        (setq org-roam-node-display-template "${title}")
+        (message "Org-roam 显示模式：简洁 (只显示标题)"))
+    (progn
+      ;; 详细模式：显示标题和文件路径
+      (setq org-roam-node-display-template "${title} ${file}")
+      (message "Org-roam 显示模式：详细 (标题和文件)"))))
+
+;; 在 org-roam 模块加载后进行配置
+(after! org-roam
+  ;; 首次加载时，根据 +my-org-roam-simple-display-p 的默认值设置显示模板
+  (if +my-org-roam-simple-display-p
+      (setq org-roam-node-display-template "${title}")
+    (setq org-roam-node-display-template "${title} ${file}")) ; 默认显示详细信息
+
+  ;; 绑定切换函数到快捷键
+  ;; 这里绑定到 SPC n r t (n r 是 org-roam 的 leader 键前缀)
+  (map! :leader
+        :prefix "n r" ; Doom Emacs 中 org-roam 的默认 leader 键前缀
+        "t" #'+my-org-roam-toggle-display-mode ; 't' 作为切换键
+        ))
+
 ;; 1. 设置 Emacs 启动时最大化窗口
 ;; 推荐使用 initial-frame-alist，因为它只影响第一个启动的 Emacs 窗口
 (add-to-list 'initial-frame-alist '(fullscreen . maximized))
@@ -251,22 +302,13 @@ tasks."
 ;;(setq doom-big-font (font-spec :family "Fira Code" :size 22))
 ;; 确保你的系统上安装了相应的字体。
 
-
-;; org-srs configuration
-(use-package! fsrs
-  :defer t) ; Defer loading until needed
-
-(use-package! org-srs
-  :after org ; Ensure org-srs loads after org-mode is available
-  :hook (org-mode . org-srs-embed-overlay-mode)
-  :config
-  (map! :map org-mode-map
-        :localleader
-        "j a" #'org-srs-review-rate-again ; j for Again (最难)
-        "j h" #'org-srs-review-rate-hard  ; k for Hard
-        "j g" #'org-srs-review-rate-good  ; l for Good
-        "j e" #'org-srs-review-rate-easy)  ; ; for Easy (最易)
-  )
+;; 仅当出现类似 "Not an Org time string: [Y-10-16 Mi 16:%]" 的错误时尝试
+(with-eval-after-load 'org-drill
+  (defun org-drill-time-to-inactive-org-timestamp (time)
+    "Convert TIME into org-mode timestamp."
+    ;; 确保这里使用的格式与当前 org-mode 的期望一致
+    ;; 注意：这可能需要根据你的 Org-mode 版本进行调整
+    (format-time-string (concat "[" (cdr org-time-stamp-formats) "]") time)))
 
 
 ;; --- 配置pyim输入法 ---

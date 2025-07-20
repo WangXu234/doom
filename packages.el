@@ -54,8 +54,7 @@
 (unpin! org-roam)
 (package! org-roam-ui)
 
-(package! fsrs)
-(package! org-srs :recipe (:host github :repo "bohonghuang/org-srs")) ; Specify the recipe for org-sr
+(package! org-drill :recipe (:host github :repo "llcc/org-drill"))
 
 ;; pyim-greatdict: 为 pyim 提供大型词库
 (package! pyim-greatdict :recipe (:host github :repo "tumashu/pyim-greatdict"))
@@ -66,3 +65,4 @@
 (package! org-ql)
 
 (package! vulpea)
+
