@@ -77,16 +77,6 @@
 
 (setq doom-symbol-font doom-font)
 
-;; 设置原生编译使用的 CPU 核心数量为所有可用核心。
-;; 这将最大化并行编译任务。
-;; 注意：这会在编译时显著增加 CPU 占用，可能导致系统暂时性卡顿。
-(setq native-comp-async-jobs-number (num-processors))
-
-;; 将原生编译的优化级别设置为最高 (3)。
-;; 这会使编译器花费更多时间进行优化，以生成运行时性能最好的机器码。
-;; 因此，编译过程会更慢，但编译完成后 Emacs 运行可能更快。
-(setq native-comp-speed 3)
-
 ;; --- Org Mode 和 Org-roam 配置 ---
 ;; Org-roam 笔记的存储目录，通常是你的主 org-directory 的一个子目录。
 ;; 确保这个目录存在。
@@ -254,7 +244,7 @@ tasks."
 ;;(setq doom-big-font (font-spec :family "Fira Code" :size 22))
 ;; 确保你的系统上安装了相应的字体。
 
-;; 仅当出现类似 "Not an Org time string: [Y-10-16 Mi 16:%]" 的错误时尝试
+;; 修复org-drill仅当出现类似 "Not an Org time string: [Y-10-16 Mi 16:%]" 的错误时尝试
 (with-eval-after-load 'org-drill
   (defun org-drill-time-to-inactive-org-timestamp (time)
     "Convert TIME into org-mode timestamp."
@@ -262,16 +252,19 @@ tasks."
     ;; 注意：这可能需要根据你的 Org-mode 版本进行调整
     (format-time-string (concat "[" (cdr org-time-stamp-formats) "]") time)))
 
-;;精简 node find中搜索结果显示
+;;精简 node find中搜索结果显示,适合在小屏幕设备中使用
 (after! org-roam
   ;; Sets the display template for Org-roam nodes in completion interfaces.
   ;; Displays the node's type, followed by its tags, then its hierarchy.
   (setq org-roam-node-display-template "${title} ${doom-tags:42} ${doom-hierarchy:*}"))
 
-
-;;解决minibuffer中不能自动换行的问题
+;; ;;解决minibuffer中不能自动换行的问题,终端下连续输入和空格直到输入栏换行后就能显示出效果
 (setq vertico-posframe-truncate-lines nil)
 (setq truncate-lines nil)
+
+;; 启用 word-wrap-whitespace-mode
+(global-word-wrap-whitespace-mode 1)
+
 
 ;; --- 配置pyim输入法 ---
 (require 'pyim)
@@ -279,18 +272,29 @@ tasks."
 (require 'pyim-cregexp-utils)
 (require 'pyim-cstring-utils)
 
+;; 确保 PyIM 在需要时加载并激活默认输入法
 (setq default-input-method "pyim")
+
+;; 设置默认的 PyIM 方案
 (pyim-default-scheme 'microsoft-shuangpin)
+
+;; 启用基础词库
 (pyim-basedict-enable)
+;; 启用大词库
 (pyim-greatdict-enable)
+
+;; **仅启用百度云词库，谷歌云词库保持注释状态**
 (setq pyim-cloudim 'baidu)
-(setq pyim-cloudim 'google)
+;(setq pyim-cloudim 'google) ;; 谷歌云词库已注释
+
+;; 启用词库缓存
 (require 'pyim-dregcache)
 (setq pyim-dcache-backend 'pyim-dregcache)
-;;Emacs 启动时加载 pyim 词库
-(add-hook 'emacs-startup-hook
-          (lambda () (pyim-restart-1 t)))
 
+;; 移除或注释掉这个 `emacs-startup-hook`，
+;; PyIM 会在 `default-input-method` 设置后自动处理词库加载。
+;; (add-hook 'emacs-startup-hook
+;;           (lambda () (pyim-restart-1 t)))
 
 ;; 输入法内切换中英文输入
 (global-set-key (kbd "C-c i") 'pyim-toggle-input-ascii)
