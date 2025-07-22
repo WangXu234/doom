@@ -222,6 +222,27 @@ tasks."
 ;; 并且你的 Org 文件包含 Org-mode 语法，可以启用解析
 (setq deft-parse-org t)
 
+;;优化deft搜索结果显示为title而不是property
+    (defun cm/deft-parse-title (file contents)
+    "Parse the given FILE and CONTENTS and determine the title.
+  If `deft-use-filename-as-title' is nil, the title is taken to
+  be the first non-empty line of the FILE.  Else the base name of the FILE is
+  used as title."
+      (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
+	(if begin
+	    (string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
+	  (deft-base-filename file))))
+
+    (advice-add 'deft-parse-title :override #'cm/deft-parse-title)
+
+    (setq deft-strip-summary-regexp
+	  (concat "\\("
+		  "[\n\t]" ;; blank
+		  "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
+		  "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
+		  "\\)"))
+
+
 ;; --- 设置连续按fd等于ESC ---
 (setq evil-escape-key-sequence "fd") ; 快速连按 fd 触发 Esc
 
@@ -258,9 +279,10 @@ tasks."
   ;; Displays the node's type, followed by its tags, then its hierarchy.
   (setq org-roam-node-display-template "${title} ${doom-tags:42} ${doom-hierarchy:*}"))
 
-;; ;;解决minibuffer中不能自动换行的问题,终端下连续输入和空格直到输入栏换行后就能显示出效果
-(setq vertico-posframe-truncate-lines nil)
-(setq truncate-lines nil)
+
+;; ;;解决minibuffer中不能自动换行的问题,建议小屏幕终端下连续输入和空格直到输入栏换行后就能显示出效果
+;; (setq vertico-posframe-truncate-lines nil)
+;; (setq truncate-lines nil)
 
 ;; 启用 word-wrap-whitespace-mode
 (global-word-wrap-whitespace-mode 1)
