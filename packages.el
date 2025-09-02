@@ -66,3 +66,4 @@
 
 (package! vulpea)
 
+(package! nov)

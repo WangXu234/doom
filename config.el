@@ -36,7 +36,7 @@
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-type t)
+(setq display-line-numbers-type 'relative)
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
@@ -75,7 +75,10 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
-(setq doom-symbol-font doom-font)
+;; (setq doom-symbol-font doom-font)
+
+;; (dolist (characters '(han kana hangul cjk-misc bopomofo))
+;;   (set-fontset-font t characters "NotoSans CJK SC"))
 
 ;; --- Org Mode 和 Org-roam 配置 ---
 ;; Org-roam 笔记的存储目录，通常是你的主 org-directory 的一个子目录。
@@ -94,8 +97,8 @@
 
 ;; --- Org-agenda日历检索设置 ---
 (after! org-roam
-;;动态追踪agenda－files，完成的TODO自动排除
-;;* dynamic agenda https://github.com/brianmcgillion/doomd/blob/master/config.org
+  ;;动态追踪agenda－files，完成的TODO自动排除
+  ;;* dynamic agenda https://github.com/brianmcgillion/doomd/blob/master/config.org
   ;; https://d12frosted.io/posts/2021-01-16-task-management-with-roam-vol5.html
   ;; The 'roam-agenda' tag is used to tell vulpea that there is a todo item in this file
   (add-to-list 'org-tags-exclude-from-inheritance "roam-agenda")
@@ -181,31 +184,31 @@ tasks."
         org-roam-ui-open-on-start t)) ; Emacs 启动时自动打开 Org-roam-UI (可选，可能会增加启动时间)
 
 
-;; ---设置consult-ripgrep支持中文搜索，警告：仅在Windows下使用这些代码，linux不要乱用 ---
-(set-language-environment "UTF-8")
-;; (prefer-coding-system 'gbk)
-(add-to-list 'process-coding-system-alist
-             '("[rR][gG]" . (utf-8 . gbk-dos)))
-(setq-default buffer-file-coding-system 'utf-8-unix)
-(set-charset-priority 'unicode)
-(prefer-coding-system 'utf-8)
-(setq system-time-locale "C")
+;; ;; ---设置consult-ripgrep支持中文搜索，警告：仅在Windows下使用这些代码，linux不要乱用 ---
+;; (set-language-environment "UTF-8")
+;; ;; (prefer-coding-system 'gbk)
+;; (add-to-list 'process-coding-system-alist
+;;              '("[rR][gG]" . (utf-8 . gbk-dos)))
+;; (setq-default buffer-file-coding-system 'utf-8-unix)
+;; (set-charset-priority 'unicode)
+;; (prefer-coding-system 'utf-8)
+;; (setq system-time-locale "C")
 
 
 
-;;--- 解决find note出现文件名乱码的问题 ---
-(defun projectile-files-via-ext-command@decode-utf-8 (root command)
-  "Advice override `projectile-files-via-ext-command' to decode shell output."
-  (when (stringp command)
-    (let ((default-directory root))
-      (with-temp-buffer
-        (shell-command command t "*projectile-files-errors*")
-        (decode-coding-region (point-min) (point-max) 'utf-8) ;; ++
-        (let ((shell-output (buffer-substring (point-min) (point-max))))
-          (split-string (string-trim shell-output) "\0" t))))))
+;; ;;--- 解决find note出现文件名乱码的问题 ---
+;; (defun projectile-files-via-ext-command@decode-utf-8 (root command)
+;;   "Advice override `projectile-files-via-ext-command' to decode shell output."
+;;   (when (stringp command)
+;;     (let ((default-directory root))
+;;       (with-temp-buffer
+;;         (shell-command command t "*projectile-files-errors*")
+;;         (decode-coding-region (point-min) (point-max) 'utf-8) ;; ++
+;;         (let ((shell-output (buffer-substring (point-min) (point-max))))
+;;           (split-string (string-trim shell-output) "\0" t))))))
 
-(advice-add 'projectile-files-via-ext-command
-            :override 'projectile-files-via-ext-command@decode-utf-8)
+;; (advice-add 'projectile-files-via-ext-command
+;;             :override 'projectile-files-via-ext-command@decode-utf-8)
 
 ;; 设置deft搜索你的笔记目录为 ~/org
 (setq deft-directory "~/org/")
@@ -223,24 +226,24 @@ tasks."
 (setq deft-parse-org t)
 
 ;;优化deft搜索结果显示为title而不是property
-    (defun cm/deft-parse-title (file contents)
-    "Parse the given FILE and CONTENTS and determine the title.
+(defun cm/deft-parse-title (file contents)
+  "Parse the given FILE and CONTENTS and determine the title.
   If `deft-use-filename-as-title' is nil, the title is taken to
   be the first non-empty line of the FILE.  Else the base name of the FILE is
   used as title."
-      (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
-	(if begin
-	    (string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
-	  (deft-base-filename file))))
+  (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
+    (if begin
+	(string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
+      (deft-base-filename file))))
 
-    (advice-add 'deft-parse-title :override #'cm/deft-parse-title)
+(advice-add 'deft-parse-title :override #'cm/deft-parse-title)
 
-    (setq deft-strip-summary-regexp
-	  (concat "\\("
-		  "[\n\t]" ;; blank
-		  "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
-		  "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
-		  "\\)"))
+(setq deft-strip-summary-regexp
+      (concat "\\("
+	      "[\n\t]" ;; blank
+	      "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
+	      "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
+	      "\\)"))
 
 
 ;; --- 设置连续按fd等于ESC ---
@@ -257,7 +260,7 @@ tasks."
 ;;;; 2. 启动时启用 big-font-mode
 ;; `big-font-mode` 是 Doom Emacs 内置的一个方便模式，用于临时放大字体
 ;; 要在启动时启用它，我们可以在 `window-setup-hook` 中添加它
-(add-hook 'window-setup-hook #'doom-big-font-mode)
+;; (add-hook 'window-setup-hook #'doom-big-font-mode)
 
 ;; 注意：如果你想要自定义 big-font-mode 的字体大小，
 ;; 你可以在此之前设置 `doom-big-font` 变量。
@@ -307,7 +310,7 @@ tasks."
 
 ;; **仅启用百度云词库，谷歌云词库保持注释状态**
 (setq pyim-cloudim 'baidu)
-;(setq pyim-cloudim 'google) ;; 谷歌云词库已注释
+(setq pyim-cloudim 'google) ;; 谷歌云词库已注释
 
 ;; 启用词库缓存
 (require 'pyim-dregcache)
