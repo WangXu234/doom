@@ -301,7 +301,7 @@ tasks."
 (setq default-input-method "pyim")
 
 ;; 设置默认的 PyIM 方案
-(pyim-default-scheme 'microsoft-shuangpin)
+(pyim-default-scheme 'ziranma-shuangpin)
 
 ;; 启用基础词库
 (pyim-basedict-enable)
