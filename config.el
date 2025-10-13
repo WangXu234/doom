@@ -36,7 +36,7 @@
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
-(setq display-line-numbers-type 'relative)
+;; (setq display-line-numbers-type 'relative)
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
@@ -233,17 +233,17 @@ tasks."
   used as title."
   (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
     (if begin
-	(string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
+	    (string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
       (deft-base-filename file))))
 
 (advice-add 'deft-parse-title :override #'cm/deft-parse-title)
 
 (setq deft-strip-summary-regexp
       (concat "\\("
-	      "[\n\t]" ;; blank
-	      "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
-	      "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
-	      "\\)"))
+	          "[\n\t]" ;; blank
+	          "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
+	          "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
+	          "\\)"))
 
 
 ;; --- 设置连续按fd等于ESC ---
@@ -260,12 +260,12 @@ tasks."
 ;;;; 2. 启动时启用 big-font-mode
 ;; `big-font-mode` 是 Doom Emacs 内置的一个方便模式，用于临时放大字体
 ;; 要在启动时启用它，我们可以在 `window-setup-hook` 中添加它
-;; (add-hook 'window-setup-hook #'doom-big-font-mode)
+(add-hook 'window-setup-hook #'doom-big-font-mode)
 
 ;; 注意：如果你想要自定义 big-font-mode 的字体大小，
 ;; 你可以在此之前设置 `doom-big-font` 变量。
 ;; 例如，如果你想将 big font 设置为 22pt 的 Fira Code：
-;;(setq doom-big-font (font-spec :family "Fira Code" :size 22))
+(setq doom-big-font (font-spec :family "Fira Code" :size 22))
 ;; 确保你的系统上安装了相应的字体。
 
 ;; 修复org-drill仅当出现类似 "Not an Org time string: [Y-10-16 Mi 16:%]" 的错误时尝试
