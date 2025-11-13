@@ -75,10 +75,10 @@
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
 
-;; (setq doom-symbol-font doom-font)
+(setq doom-symbol-font doom-font)
 
-;; (dolist (characters '(han kana hangul cjk-misc bopomofo))
-;;   (set-fontset-font t characters "NotoSans CJK SC"))
+(dolist (characters '(han kana hangul cjk-misc bopomofo))
+  (set-fontset-font t characters "NotoSans CJK SC"))
 
 ;; --- Org Mode 和 Org-roam 配置 ---
 ;; Org-roam 笔记的存储目录，通常是你的主 org-directory 的一个子目录。
@@ -122,10 +122,10 @@ tasks."
      (lambda (type)
        (eq type 'todo))
      (org-element-map                         ; (2)
-         (org-element-parse-buffer 'headline) ; (1)
-         'headline
-       (lambda (h)
-         (org-element-property :todo-type h)))))
+      (org-element-parse-buffer 'headline) ; (1)
+      'headline
+      (lambda (h)
+        (org-element-property :todo-type h)))))
 
   (defun vulpea-project-update-tag (&optional arg)
     "Update PROJECT tag in the current buffer."
@@ -233,17 +233,17 @@ tasks."
   used as title."
   (let ((begin (string-match "^#\\+[tT][iI][tT][lL][eE]: .*$" contents)))
     (if begin
-	    (string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
+	(string-trim (substring contents begin (match-end 0)) "#\\+[tT][iI][tT][lL][eE]: *" "[\n\t ]+")
       (deft-base-filename file))))
 
 (advice-add 'deft-parse-title :override #'cm/deft-parse-title)
 
 (setq deft-strip-summary-regexp
       (concat "\\("
-	          "[\n\t]" ;; blank
-	          "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
-	          "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
-	          "\\)"))
+	      "[\n\t]" ;; blank
+	      "\\|^#\\+[[:alpha:]_]+:.*$" ;; org-mode metadata
+	      "\\|^:PROPERTIES:\n\\(.+\n\\)+:END:\n"
+	      "\\)"))
 
 
 ;; --- 设置连续按fd等于ESC ---
@@ -301,7 +301,7 @@ tasks."
 (setq default-input-method "pyim")
 
 ;; 设置默认的 PyIM 方案
-(pyim-default-scheme 'ziranma-shuangpin)
+(pyim-default-scheme 'microsoft-shuangpin)
 
 ;; 启用基础词库
 (pyim-basedict-enable)
